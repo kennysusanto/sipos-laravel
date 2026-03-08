@@ -2,9 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,11 +17,29 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $tenant = Tenant::query()->updateOrCreate(
+            ['name' => 'master'],
+            ['display_name' => 'Master Tenant']
+        );
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        User::query()->updateOrCreate([
+            'email' => 'admin@example.com',
+        ], [
+            'tenant_id' => $tenant->id,
+            'name' => 'Admin',
+            'email' => 'admin@example.com',
+            'role' => 'admin',
+            'password' => Hash::make('password'),
+        ]);
+
+        User::query()->updateOrCreate([
+            'email' => 'kenny@example.com',
+        ], [
+            'tenant_id' => $tenant->id,
+            'name' => 'Kenny',
+            'email' => 'kenny@example.com',
+            'role' => 'user',
+            'password' => Hash::make('password'),
         ]);
     }
 }

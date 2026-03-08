@@ -11,14 +11,24 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::create('tenants', function (Blueprint $table) {
+            $table->id();
+            $table->string('name', 100)->unique();
+            $table->string('display_name', 150);
+            $table->timestamps();
+            $table->softDeletes();
+        });
+
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('tenant_id')->constrained('tenants');
             $table->string('name');
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('role', 50)->default('user');
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
@@ -43,6 +53,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('users');
+        Schema::dropIfExists('tenants');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
     }
